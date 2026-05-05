@@ -32,15 +32,15 @@ def clean_text(text):
 # SIDEBAR NAVIGATION
 # =========================
 page = st.sidebar.selectbox("Navigation", 
-                           ["Home", "Sentiment Analysis", "Model Performance", "About"])
+                           ["Home", "Sentiment Analysis", "Model Performance"])
 
 # =========================
 # HOME PAGE
 # =========================
 if page == "Home":
     st.title("🛍️ Product Review Sentiment Analysis")
-    st.write("Welcome to the NLP project!")
-    st.write("This app analyzes customer reviews and predicts sentiment.")
+    st.write("This application predicts sentiment from customer reviews.")
+    st.write("Built using NLP and Machine Learning.")
 
 # =========================
 # SENTIMENT PAGE
@@ -68,28 +68,16 @@ elif page == "Model Performance":
 
     st.write("""
     Models Used:
-    - Logistic Regression
+    - Logistic Regression ✅ (Best Model)
     - Naive Bayes
-    - SVM ✅ (Best)
+    - SVM
     - Random Forest
     - KNN
     """)
 
-    st.write("SVM performed best due to high-dimensional TF-IDF features.")
-
-# =========================
-# ABOUT PAGE
-# =========================
-elif page == "About":
-    st.title("ℹ️ About Project")
-
     st.write("""
-    **Project:** Sentiment Analysis on Customer Reviews  
-    **Tech Stack:** Python, NLP, TF-IDF, Machine Learning  
-    **Deployment:** Streamlit  
-
-    This project analyzes customer reviews and classifies them into:
-    - Positive
-    - Negative
-    - Neutral
+    Logistic Regression performed best on this dataset due to:
+    - Efficient handling of TF-IDF features  
+    - Good generalization performance  
+    - Simplicity and interpretability  
     """)
