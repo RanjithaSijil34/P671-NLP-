@@ -59,54 +59,51 @@ if page == "Home":
     st.write("This app predicts sentiment from customer reviews using NLP and Machine Learning.")
 
 # =========================
-# EDA PAGE (Graphs + WordCloud)
+# EDA PAGE (Graphs + WordCloud using clean_review)
 # =========================
 elif page == "EDA":
     st.title("📊 Data Visualization")
 
-    if 'review' not in df.columns:
-        st.error("❌ 'review' column not found in dataset")
-    else:
-        # -------------------------
-        # Word Count
-        # -------------------------
-        df['word_count'] = df['cleaned_review'].apply(lambda x: len(str(x).split()))
+    # -------------------------
+    # Word Count
+    # -------------------------
+    df['word_count'] = df['clean_review'].apply(lambda x: len(str(x).split()))
 
-        st.subheader("Word Count Distribution")
-        fig1, ax1 = plt.subplots()
-        ax1.hist(df['word_count'], bins=30)
-        ax1.set_title("Word Count")
-        st.pyplot(fig1)
+    st.subheader("Word Count Distribution")
+    fig1, ax1 = plt.subplots()
+    ax1.hist(df['word_count'], bins=30)
+    ax1.set_title("Word Count")
+    st.pyplot(fig1)
 
-        # -------------------------
-        # Review Length
-        # -------------------------
-        df['review_length'] = df['review'].apply(lambda x: len(str(x)))
+    # -------------------------
+    # Review Length
+    # -------------------------
+    df['review_length'] = df['clean_review'].apply(lambda x: len(str(x)))
 
-        st.subheader("Review Length Distribution")
-        fig2, ax2 = plt.subplots()
-        ax2.hist(df['review_length'], bins=30)
-        ax2.set_title("Review Length")
-        st.pyplot(fig2)
+    st.subheader("Review Length Distribution")
+    fig2, ax2 = plt.subplots()
+    ax2.hist(df['review_length'], bins=30)
+    ax2.set_title("Review Length")
+    st.pyplot(fig2)
 
-        # -------------------------
-        # WordCloud
-        # -------------------------
-        st.subheader("WordCloud")
+    # -------------------------
+    # WordCloud (cleaned text)
+    # -------------------------
+    st.subheader("WordCloud (Cleaned Reviews)")
 
-        text = " ".join(df['review'].dropna().astype(str))
+    text = " ".join(df['clean_review'].dropna().astype(str))
 
-        wordcloud = WordCloud(
-            width=800,
-            height=400,
-            background_color='white'
-        ).generate(text)
+    wordcloud = WordCloud(
+        width=800,
+        height=400,
+        background_color='white'
+    ).generate(text)
 
-        fig3, ax3 = plt.subplots()
-        ax3.imshow(wordcloud, interpolation='bilinear')
-        ax3.axis("off")
+    fig3, ax3 = plt.subplots()
+    ax3.imshow(wordcloud, interpolation='bilinear')
+    ax3.axis("off")
 
-        st.pyplot(fig3)
+    st.pyplot(fig3)
 
 # =========================
 # SENTIMENT PAGE
