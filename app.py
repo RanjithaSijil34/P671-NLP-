@@ -70,7 +70,7 @@ elif page == "EDA":
         # -------------------------
         # Word Count
         # -------------------------
-        df['word_count'] = df['cleaned_review].apply(lambda x: len(str(x).split()))
+        df['word_count'] = df['cleaned_review'].apply(lambda x: len(str(x).split()))
 
         st.subheader("Word Count Distribution")
         fig1, ax1 = plt.subplots()
