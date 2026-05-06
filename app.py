@@ -78,7 +78,7 @@ elif page == "EDA":
     # -------------------------
     # Review Length
     # -------------------------
-    df['review_length'] = df['clean_review'].apply(lambda x: len(str(x)))
+    df['review_length'] = df['cleaned_review'].apply(lambda x: len(str(x)))
 
     st.subheader("Review Length Distribution")
     fig2, ax2 = plt.subplots()
