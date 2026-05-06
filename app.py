@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(__file__)
 model = pickle.load(open(os.path.join(BASE_DIR, "best_model.pkl"), "rb"))
 tfidf = pickle.load(open(os.path.join(BASE_DIR, "tfidf.pkl"), "rb"))
 
-# Load dataset (for EDA)
+# Load dataset
 df = pd.read_excel(os.path.join(BASE_DIR, "dataset.xlsx"))
 
 # Normalize column names
@@ -44,9 +44,24 @@ def clean_text(text):
     return " ".join(words)
 
 # =========================
-# CREATE clean_review COLUMN (IMPORTANT)
+# AUTO-DETECT REVIEW COLUMN
 # =========================
-df['clean_review'] = df['review'].apply(clean_text)
+possible_cols = ['review', 'reviews', 'review_text', 'text', 'comment']
+
+review_col = None
+for col in df.columns:
+    if col in possible_cols:
+        review_col = col
+        break
+
+# If not found → stop app
+if review_col is None:
+    st.error("❌ No review column found in dataset")
+    st.write("Available columns:", df.columns)
+    st.stop()
+
+# Create cleaned column
+df['clean_review'] = df[review_col].apply(clean_text)
 
 # =========================
 # SIDEBAR NAVIGATION
@@ -57,45 +72,34 @@ page = st.sidebar.selectbox(
 )
 
 # =========================
-# HOME PAGE
+# HOME
 # =========================
 if page == "Home":
     st.title("🛍️ Product Review Sentiment Analysis")
-    st.write("This app predicts sentiment from customer reviews using NLP and Machine Learning.")
+    st.write("Analyze customer reviews using NLP and Machine Learning.")
 
 # =========================
-# EDA PAGE (using clean_review)
+# EDA (Graphs + WordCloud)
 # =========================
 elif page == "EDA":
     st.title("📊 Data Visualization")
 
-    # -------------------------
     # Word Count
-    # -------------------------
     df['word_count'] = df['clean_review'].apply(lambda x: len(str(x).split()))
-
     st.subheader("Word Count Distribution")
     fig1, ax1 = plt.subplots()
     ax1.hist(df['word_count'], bins=30)
-    ax1.set_title("Word Count")
     st.pyplot(fig1)
 
-    # -------------------------
     # Review Length
-    # -------------------------
     df['review_length'] = df['clean_review'].apply(lambda x: len(str(x)))
-
     st.subheader("Review Length Distribution")
     fig2, ax2 = plt.subplots()
     ax2.hist(df['review_length'], bins=30)
-    ax2.set_title("Review Length")
     st.pyplot(fig2)
 
-    # -------------------------
     # WordCloud
-    # -------------------------
     st.subheader("WordCloud (Cleaned Reviews)")
-
     text = " ".join(df['clean_review'].dropna().astype(str))
 
     wordcloud = WordCloud(
@@ -107,11 +111,10 @@ elif page == "EDA":
     fig3, ax3 = plt.subplots()
     ax3.imshow(wordcloud, interpolation='bilinear')
     ax3.axis("off")
-
     st.pyplot(fig3)
 
 # =========================
-# SENTIMENT PAGE
+# SENTIMENT ANALYSIS
 # =========================
 elif page == "Sentiment Analysis":
     st.title("🔍 Analyze Sentiment")
