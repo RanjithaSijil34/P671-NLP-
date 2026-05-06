@@ -5,14 +5,10 @@ import nltk
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-from wordcloud import WordCloud
 
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# =========================
-# DOWNLOAD NLTK
-# =========================
 nltk.download('stopwords')
 nltk.download('wordnet')
 
@@ -24,10 +20,10 @@ BASE_DIR = os.path.dirname(__file__)
 model = pickle.load(open(os.path.join(BASE_DIR, "best_model.pkl"), "rb"))
 tfidf = pickle.load(open(os.path.join(BASE_DIR, "tfidf.pkl"), "rb"))
 
-# Load dataset
+# Load dataset for EDA
 df = pd.read_excel(os.path.join(BASE_DIR, "dataset.xlsx"))
 
-# Normalize column names
+# normalize column names
 df.columns = df.columns.str.lower()
 
 lemmatizer = WordNetLemmatizer()
@@ -42,26 +38,6 @@ def clean_text(text):
     words = text.split()
     words = [lemmatizer.lemmatize(w) for w in words if w not in stop_words]
     return " ".join(words)
-
-# =========================
-# AUTO-DETECT REVIEW COLUMN
-# =========================
-possible_cols = ['review', 'reviews', 'review_text', 'text', 'comment']
-
-review_col = None
-for col in df.columns:
-    if col in possible_cols:
-        review_col = col
-        break
-
-# If not found → stop app
-if review_col is None:
-    st.error("❌ No review column found in dataset")
-    st.write("Available columns:", df.columns)
-    st.stop()
-
-# Create cleaned column
-df['clean_review'] = df[review_col].apply(clean_text)
 
 # =========================
 # SIDEBAR NAVIGATION
@@ -79,42 +55,56 @@ if page == "Home":
     st.write("Analyze customer reviews using NLP and Machine Learning.")
 
 # =========================
-# EDA (Graphs + WordCloud)
+# EDA PAGE
 # =========================
 elif page == "EDA":
-    st.title("📊 Data Visualization")
+    st.title("📊 Exploratory Data Analysis")
 
-    # Word Count
-    df['word_count'] = df['clean_review'].apply(lambda x: len(str(x).split()))
-    st.subheader("Word Count Distribution")
-    fig1, ax1 = plt.subplots()
-    ax1.hist(df['word_count'], bins=30)
-    st.pyplot(fig1)
+    st.write("### Dataset Preview")
+    st.dataframe(df.head())
 
+    # -------------------------
+    # Missing values
+    # -------------------------
+    st.write("### Missing Values")
+    st.write(df.isnull().sum())
+
+    # -------------------------
     # Review Length
-    df['review_length'] = df['clean_review'].apply(lambda x: len(str(x)))
-    st.subheader("Review Length Distribution")
-    fig2, ax2 = plt.subplots()
-    ax2.hist(df['review_length'], bins=30)
-    st.pyplot(fig2)
+    # -------------------------
+    if 'review' in df.columns:
+        df['review_length'] = df['review'].apply(lambda x: len(str(x)))
 
-    # WordCloud
-    st.subheader("WordCloud (Cleaned Reviews)")
-    text = " ".join(df['clean_review'].dropna().astype(str))
+        st.write("### Review Length Distribution")
+        fig1, ax1 = plt.subplots()
+        ax1.hist(df['review_length'], bins=30)
+        ax1.set_title("Review Length")
+        st.pyplot(fig1)
 
-    wordcloud = WordCloud(
-        width=800,
-        height=400,
-        background_color='white'
-    ).generate(text)
+    # -------------------------
+    # Word Count
+    # -------------------------
+    if 'review' in df.columns:
+        df['word_count'] = df['review'].apply(lambda x: len(str(x).split()))
 
-    fig3, ax3 = plt.subplots()
-    ax3.imshow(wordcloud, interpolation='bilinear')
-    ax3.axis("off")
-    st.pyplot(fig3)
+        st.write("### Word Count Distribution")
+        fig2, ax2 = plt.subplots()
+        ax2.hist(df['word_count'], bins=30)
+        ax2.set_title("Word Count")
+        st.pyplot(fig2)
+
+    # -------------------------
+    # Rating Distribution
+    # -------------------------
+    if 'rating' in df.columns:
+        st.write("### Rating Distribution")
+        fig3, ax3 = plt.subplots()
+        df['rating'].value_counts().sort_index().plot(kind='bar', ax=ax3)
+        ax3.set_title("Ratings")
+        st.pyplot(fig3)
 
 # =========================
-# SENTIMENT ANALYSIS
+# SENTIMENT PAGE
 # =========================
 elif page == "Sentiment Analysis":
     st.title("🔍 Analyze Sentiment")
@@ -147,8 +137,8 @@ elif page == "Model Performance":
     """)
 
     st.write("""
-    Logistic Regression performed best because:
-    - Works efficiently with TF-IDF features  
+    Logistic Regression performed best due to:
+    - Efficient handling of TF-IDF features  
     - Good generalization  
-    - Simple and interpretable  
+    - Simplicity and interpretability  
     """)
