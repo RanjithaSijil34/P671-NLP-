@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(__file__)
 model = pickle.load(open(os.path.join(BASE_DIR, "best_model.pkl"), "rb"))
 tfidf = pickle.load(open(os.path.join(BASE_DIR, "tfidf.pkl"), "rb"))
 
-# Load dataset (for EDA only)
+# Load dataset (for EDA)
 df = pd.read_excel(os.path.join(BASE_DIR, "dataset.xlsx"))
 
 # Normalize column names
@@ -44,6 +44,11 @@ def clean_text(text):
     return " ".join(words)
 
 # =========================
+# CREATE clean_review COLUMN (IMPORTANT)
+# =========================
+df['clean_review'] = df['review'].apply(clean_text)
+
+# =========================
 # SIDEBAR NAVIGATION
 # =========================
 page = st.sidebar.selectbox(
@@ -59,7 +64,7 @@ if page == "Home":
     st.write("This app predicts sentiment from customer reviews using NLP and Machine Learning.")
 
 # =========================
-# EDA PAGE (Graphs + WordCloud using clean_review)
+# EDA PAGE (using clean_review)
 # =========================
 elif page == "EDA":
     st.title("📊 Data Visualization")
@@ -78,7 +83,7 @@ elif page == "EDA":
     # -------------------------
     # Review Length
     # -------------------------
-    df['review_length'] = df['cleaned_review'].apply(lambda x: len(str(x)))
+    df['review_length'] = df['clean_review'].apply(lambda x: len(str(x)))
 
     st.subheader("Review Length Distribution")
     fig2, ax2 = plt.subplots()
@@ -87,7 +92,7 @@ elif page == "EDA":
     st.pyplot(fig2)
 
     # -------------------------
-    # WordCloud (cleaned text)
+    # WordCloud
     # -------------------------
     st.subheader("WordCloud (Cleaned Reviews)")
 
